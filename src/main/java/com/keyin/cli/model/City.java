@@ -51,4 +51,3 @@ public class City {
         this.airports = airports;
     }
 }
-
