@@ -13,8 +13,16 @@ import java.util.List;
 public class AirportApiClient {
 
     private static final String API_URL = "http://localhost:8080/airport";
-    private final HttpClient client = HttpClient.newHttpClient();
+    private final HttpClient client;
     private final ObjectMapper mapper = new ObjectMapper();
+
+    public AirportApiClient() {
+        this(HttpClient.newHttpClient());
+    }
+
+    public AirportApiClient(HttpClient client) {
+        this.client = client;
+    }
 
     public List<Airport> fetchAllAirports() throws Exception {
         HttpRequest request = HttpRequest.newBuilder(URI.create(API_URL))
@@ -89,7 +97,7 @@ public class AirportApiClient {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() == 200) {
+        if (response.statusCode() != 200) {
             throw new Exception("Failed to delete airport. HTTP Status: " + response.statusCode());
         }
     }
