@@ -12,8 +12,15 @@ import java.util.List;
 
 public class CityApiClient {
     private static final String BASE_URL = "http://localhost:8080/city";
+    private final ObjectMapper objectMapper;
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    public CityApiClient() {
+        this.objectMapper = new ObjectMapper();
+    }
+
+    public CityApiClient(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     public List<City> getAllCities() throws Exception {
         URL url = new URL(BASE_URL);
