@@ -4,7 +4,9 @@ import com.keyin.cli.client.PassengerApiClient;
 import com.keyin.cli.model.Passenger;
 import org.junit.jupiter.api.Test;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -12,33 +14,27 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class PassengerApiClientTest {
-
     @Test
-    public void testGetPassengerById_returnsValidPassenger() throws Exception {
-        // Mock response JSON
-        String json = "{\"id\":1,\"firstName\":\"Hunter\"}";
-        ByteArrayInputStream fakeStream = new ByteArrayInputStream(json.getBytes());
+    public void testParsePassenger_returnsValidPassenger() throws Exception {
+        String json = """
+                {
+                    "id": 1,
+                    "firstName": "Hunter",
+                    "lastName": "Saunders",
+                    "phoneNumber": "7095551234"
+                }
+                """;
 
-        // Mock connection + URL
-        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
-        when(mockConnection.getInputStream()).thenReturn(fakeStream);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(json.getBytes());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
-        URL mockUrl = mock(URL.class);
-        when(mockUrl.openConnection()).thenReturn(mockConnection);
+        PassengerApiClient apiClient = new PassengerApiClient();
+        Passenger result = apiClient.parsePassenger(reader);
 
-        // Mock URL constructor using mockito-inline
-        try (var mockedUrl = mockStatic(URL.class)) {
-            mockedUrl.when(() -> new URL("http://localhost:8080/passengers/1"))
-                    .thenReturn(mockUrl);
-
-            // Call the method
-            PassengerApiClient apiClient = new PassengerApiClient();
-            Passenger result = apiClient.getPassengerById(1);
-
-            // Assertions
-            assertNotNull(result);
-            assertEquals(1, result.getId());
-            assertEquals("Hunter", result.getFirstName());
-        }
+        assertNotNull(result);
+        assertEquals(1, result.getId());
+        assertEquals("Hunter", result.getFirstName());
+        assertEquals("Saunders", result.getLastName());
+        assertEquals("7095551234", result.getPhoneNumber());
     }
 }

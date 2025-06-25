@@ -24,4 +24,9 @@ public class PassengerApiClient {
 
         return passenger;
     }
+
+    public Passenger parsePassenger(BufferedReader reader) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(reader, Passenger.class);
+    }
 }
