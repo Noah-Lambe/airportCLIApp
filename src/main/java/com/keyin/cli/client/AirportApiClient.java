@@ -61,4 +61,36 @@ public class AirportApiClient {
             throw new Exception("Failed to create airport. HTTP Status: " + response.statusCode());
         }
     }
+
+    public Airport updateAirport(Long airportId, Airport airport) throws Exception {
+        String airportJson = mapper.writeValueAsString(airport);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(API_URL + "/" + airportId))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(airportJson))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return mapper.readValue(response.body(), Airport.class);
+        } else {
+            throw new Exception("Failed to update airport. HTTP Status: " + response.statusCode());
+        }
+    }
+
+    public void deleteAirport(Long airportId) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(API_URL + "/" + airportId))
+                .header("Content-Type", "application/json")
+                .DELETE()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            throw new Exception("Failed to delete airport. HTTP Status: " + response.statusCode());
+        }
+    }
 }
