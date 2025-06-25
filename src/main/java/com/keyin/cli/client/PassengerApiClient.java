@@ -24,5 +24,4 @@ public class PassengerApiClient {
 
         return passenger;
     }
-
 }
