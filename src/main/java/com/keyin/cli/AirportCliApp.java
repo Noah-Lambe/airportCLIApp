@@ -16,7 +16,7 @@ public class AirportCliApp {
     public static void main(String[] args) throws IOException, InterruptedException {
         while (true) {
             System.out.println("\nChoose an option:");
-            System.out.println("1. List airports located in a chosen city");
+            System.out.println("1. List airports located in a city");
             System.out.println("2. ");
             System.out.println("3. ");
             System.out.println("4. Show airports used by a passenger");
