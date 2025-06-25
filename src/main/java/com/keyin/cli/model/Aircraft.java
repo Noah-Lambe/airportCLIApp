@@ -75,4 +75,3 @@ public class Aircraft {
                 ", Airline: " + airlineName +
                 ", Passengers: " + numberOfPassengers;
     }
-}
