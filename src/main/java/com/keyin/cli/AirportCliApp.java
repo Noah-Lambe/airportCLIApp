@@ -4,17 +4,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
-
 import com.keyin.cli.client.AircraftApiClient;
 import com.keyin.cli.client.AirportApiClient;
 import com.keyin.cli.client.CityApiClient;
 import com.keyin.cli.client.PassengerApiClient;
 import com.keyin.cli.model.Aircraft;
-import com.keyin.cli.client.AircraftApiClient;
 import com.keyin.cli.model.Airport;
 import com.keyin.cli.model.City;
-import com.keyin.cli.model.Aircraft;
 
 public class AirportCliApp {
     private static final Scanner scanner = new Scanner(System.in);
@@ -25,7 +21,7 @@ public class AirportCliApp {
             System.out.println("\nChoose an option:");
             System.out.println("1. List airports located in a city");
             System.out.println("2. Aircraft each passenger has flown on");
-            System.out.println("3. ");
+            System.out.println("3. Airports used by an aircraft");
             System.out.println("4. Show airports used by a passenger");
             System.out.println("5. Exit");
 
@@ -68,14 +64,13 @@ public class AirportCliApp {
                         } else {
                             for (Aircraft aircraft : aircraftList) {
                                 System.out.println("Aircraft: " + aircraft.getType() + ", " + aircraft.getAirlineName());
-
                             }
                         }
                     } catch (Exception e) {
                         System.err.println("An error occurred: " + e.getMessage());
                     }
                 }
-                              
+
                 case "3" -> {
                     System.out.println("Enter Aircraft ID: ");
                     long aircraftId = Long.parseLong(scanner.nextLine());
@@ -90,7 +85,13 @@ public class AirportCliApp {
                             System.out.println("Airports associated with Aircraft ID " + aircraftId + ":");
                             for (Airport airport : airports) {
                                 System.out.println("  → " + airport.getAirportName() + " (" + airport.getAreaCode() + ")");
-                
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.err.println("An error occurred: " + e.getMessage());
+                    }
+                }
+
                 case "4" -> {
                     System.out.print("Enter Passenger ID: ");
                     long passengerId = Long.parseLong(scanner.nextLine());
