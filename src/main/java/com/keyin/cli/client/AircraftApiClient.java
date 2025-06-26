@@ -1,120 +1,117 @@
 package com.keyin.cli.client;
 
-import com.keyin.cli.model.Aircraft;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.keyin.cli.model.Aircraft;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 
 public class AircraftApiClient {
-    private static final String API_URL = "http://localhost:8080/airport";
-    private final HttpClient client = HttpClient.newHttpClient();
-    private final ObjectMapper mapper;
+    private static final String BASE_URL = "http://localhost:8080/aircraft";
+    private final ObjectMapper objectMapper;
 
     public AircraftApiClient() {
-        this.mapper = new ObjectMapper();
+        this.objectMapper = new ObjectMapper();
     }
 
-    public AircraftApiClient(ObjectMapper mapper) {
-        this.mapper = mapper;
+    public AircraftApiClient(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
 
     public List<Aircraft> fetchAllAircraft() throws Exception {
-        HttpRequest request = HttpRequest.newBuilder(URI.create(API_URL))
-                .GET()
-                .build();
+        URL url = new URL(BASE_URL);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (conn.getResponseCode() != 200) {
+            throw new RuntimeException("Failed to fetch aircraft: " + conn.getResponseCode());
+        }
 
-        if (response.statusCode() == 200) {
-            return mapper.readValue(response.body(), new TypeReference<List<Aircraft>>() {
-            });
-        } else {
-            throw new Exception("Failed to fetch aircraft. HTTP Status: " + response.statusCode());
+        try (InputStream inputStream = conn.getInputStream()) {
+            return objectMapper.readValue(inputStream, new TypeReference<List<Aircraft>>() {});
         }
     }
 
     public Aircraft fetchAircraftById(Long aircraftId) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder(URI.create(API_URL + "/" + aircraftId))
-                .GET()
-                .build();
+        URL url = new URL(BASE_URL + "/" + aircraftId);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (conn.getResponseCode() != 200) {
+            throw new RuntimeException("Failed to fetch aircraft: " + conn.getResponseCode());
+        }
 
-        if (response.statusCode() == 200) {
-            return mapper.readValue(response.body(), Aircraft.class);
-        } else {
-            throw new Exception("Failed to fetch aircraft. HTTP Status: " + response.statusCode());
+        try (InputStream inputStream = conn.getInputStream()) {
+            return objectMapper.readValue(inputStream, Aircraft.class);
         }
     }
 
     public Aircraft createAircraft(Aircraft aircraft) throws Exception {
-        String aircraftJson = mapper.writeValueAsString(aircraft);
+        URL url = new URL(BASE_URL);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(API_URL))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(aircraftJson))
-                .build();
+        try (OutputStream os = conn.getOutputStream()) {
+            objectMapper.writeValue(os, aircraft);
+        }
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (conn.getResponseCode() != 200 && conn.getResponseCode() != 201) {
+            throw new RuntimeException("Failed to create aircraft: " + conn.getResponseCode());
+        }
 
-        if (response.statusCode() == 200 || response.statusCode() == 201) {
-            return mapper.readValue(response.body(), Aircraft.class);
-        } else {
-            throw new Exception("Failed to create aircraft. HTTP Status: " + response.statusCode());
+        try (InputStream inputStream = conn.getInputStream()) {
+            return objectMapper.readValue(inputStream, Aircraft.class);
         }
     }
 
     public Aircraft updateAircraft(Long aircraftId, Aircraft aircraft) throws Exception {
-        String aircraftJson = mapper.writeValueAsString(aircraft);
+        URL url = new URL(BASE_URL + "/" + aircraftId);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("PUT");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(API_URL + "/" + aircraftId))
-                .header("Content-Type", "application/json")
-                .PUT(HttpRequest.BodyPublishers.ofString(aircraftJson))
-                .build();
+        try (OutputStream os = conn.getOutputStream()) {
+            objectMapper.writeValue(os, aircraft);
+        }
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (conn.getResponseCode() != 200) {
+            throw new RuntimeException("Failed to update aircraft: " + conn.getResponseCode());
+        }
 
-        if (response.statusCode() == 200) {
-            return mapper.readValue(response.body(), Aircraft.class);
-        } else {
-            throw new Exception("Failed to update aircraft. HTTP Status: " + response.statusCode());
+        try (InputStream inputStream = conn.getInputStream()) {
+            return objectMapper.readValue(inputStream, Aircraft.class);
         }
     }
 
     public void deleteAircraft(Long aircraftId) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(API_URL + "/" + aircraftId))
-                .header("Content-Type", "application/json")
-                .DELETE()
-                .build();
+        URL url = new URL(BASE_URL + "/" + aircraftId);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("DELETE");
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() != 200 && response.statusCode() != 204) {
-            throw new Exception("Failed to delete aircraft. HTTP Status: " + response.statusCode());
+        int status = conn.getResponseCode();
+        if (status != 200 && status != 204) {
+            throw new RuntimeException("Failed to delete aircraft: " + status);
         }
     }
 
     public List<Aircraft> getAircraftByPassengerId(long passengerId) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder(
-                        URI.create(API_URL + "/passenger/" + passengerId))
-                .GET()
-                .build();
+        URL url = new URL(BASE_URL + "/" + passengerId + "/airports");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (conn.getResponseCode() != 200) {
+            throw new RuntimeException("Failed to fetch aircraft by passenger ID: " + conn.getResponseCode());
+        }
 
-        if (response.statusCode() == 200) {
-            return mapper.readValue(response.body(), new TypeReference<List<Aircraft>>() {
-            });
-        } else {
-            throw new Exception("Failed to fetch aircraft for passenger. HTTP Status: " + response.statusCode());
+        try (InputStream inputStream = conn.getInputStream()) {
+            return objectMapper.readValue(inputStream, new TypeReference<List<Aircraft>>() {});
         }
     }
 }
