@@ -6,8 +6,10 @@ import java.util.Scanner;
 
 import com.keyin.cli.client.CityApiClient;
 import com.keyin.cli.client.PassengerApiClient;
+import com.keyin.cli.client.AircraftApiClient;
 import com.keyin.cli.model.Airport;
 import com.keyin.cli.model.City;
+import com.keyin.cli.model.Aircraft;
 
 public class AirportCliApp {
     private static final Scanner scanner = new Scanner(System.in);
@@ -17,7 +19,7 @@ public class AirportCliApp {
         while (true) {
             System.out.println("\nChoose an option:");
             System.out.println("1. List airports located in a city");
-            System.out.println("2. ");
+            System.out.println("2. Aircraft each passenger has flown on");
             System.out.println("3. ");
             System.out.println("4. Show airports used by a passenger");
             System.out.println("5. Exit");
@@ -48,6 +50,26 @@ public class AirportCliApp {
                     }
                 }
 
+                case "2" -> {
+                    System.out.print("Enter Passenger ID: ");
+                    long passengerId = Long.parseLong(scanner.nextLine());
+
+                    try {
+                        AircraftApiClient aircraftClient = new AircraftApiClient();
+                        List<Aircraft> aircraftList = aircraftClient.getAircraftByPassengerId(passengerId);
+
+                        if (aircraftList.isEmpty()) {
+                            System.out.println("No aircraft found for passenger ID: " + passengerId);
+                        } else {
+                            for (Aircraft aircraft : aircraftList) {
+                                System.out.println("Aircraft: " + aircraft.getType() + ", " + aircraft.getAirlineName());
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.err.println("An error occurred: " + e.getMessage());
+                    }
+                }
+
                 case "4" -> {
                     System.out.print("Enter Passenger ID: ");
                     long passengerId = Long.parseLong(scanner.nextLine());
@@ -69,7 +91,6 @@ public class AirportCliApp {
                     }
                 }
 
-                case "2" -> System.exit(0);
                 case "3" -> System.exit(0);
                 case "5" -> System.exit(0);
                 default -> System.out.println("Invalid choice");
