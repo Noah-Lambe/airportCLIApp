@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.*;
 
 public class AircraftApiClient {
-    private static final String API_URL = "http://localhost:8080/airport";
+    private static final String API_URL = "http://localhost:8080/aircrafts";
+
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper mapper;
 
@@ -56,16 +57,19 @@ public class AircraftApiClient {
     }
 
     public List<Airport> getAirportsUsedByAircraft(Long aircraftId) throws Exception {
-        Aircraft aircraft = fetchAircraftById(aircraftId);
-        List<Airport> airports = aircraft.getAirports();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(API_URL + "/" + aircraftId + "/airports"))
+                .GET()
+                .build();
 
-        if (airports == null) {
-            return Collections.emptyList();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return mapper.readValue(response.body(), new TypeReference<List<Airport>>() {});
+        } else {
+            throw new Exception("Failed to fetch airports for aircraft. HTTP Status: " + response.statusCode());
         }
-
-        return airports;
     }
-
 
     public Aircraft createAircraft(Aircraft aircraft) throws Exception {
         String aircraftJson = mapper.writeValueAsString(aircraft);
