@@ -6,6 +6,7 @@ public class Airport {
     private Long airportId;
     private String airportName;
     private String areaCode;
+    private City city;
 
     public Airport() {}
 
@@ -17,5 +18,8 @@ public class Airport {
 
     public String getAreaCode() { return areaCode; }
     public void setAreaCode(String areaCode) { this.areaCode = areaCode; }
+
+    public City getCity() { return city; }
+    public void setCity(City city) { this.city = city; }
 }
 

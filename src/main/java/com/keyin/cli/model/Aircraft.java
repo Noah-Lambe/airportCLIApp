@@ -1,5 +1,6 @@
 package com.keyin.cli.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Aircraft {

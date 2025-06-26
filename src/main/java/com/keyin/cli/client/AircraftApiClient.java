@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.*;
 
 public class AircraftApiClient {
-    private static final String API_URL = "http://localhost:8080/aircrafts";
+    private static final String API_URL = "http://localhost:8080/aircraft";
 
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper mapper;
