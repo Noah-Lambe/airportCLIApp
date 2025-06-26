@@ -1,14 +1,17 @@
 package com.keyin.cli.client;
 
+import ch.qos.logback.classic.util.LogbackMDCAdapter;
 import com.keyin.cli.model.Aircraft;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.keyin.cli.model.Airport;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.*;
 
 public class AircraftApiClient {
     private static final String API_URL = "http://localhost:8080/airport";
@@ -50,6 +53,18 @@ public class AircraftApiClient {
             throw new Exception("Failed to fetch aircraft. HTTP Status: " + response.statusCode());
         }
     }
+
+    public List<Airport> getAirportsUsedByAircraft(Long aircraftId) throws Exception {
+        Aircraft aircraft = fetchAircraftById(aircraftId);
+        List<Airport> airports = aircraft.getAirports();
+
+        if (airports == null) {
+            return Collections.emptyList();
+        }
+
+        return airports;
+    }
+
 
     public Aircraft createAircraft(Aircraft aircraft) throws Exception {
         String aircraftJson = mapper.writeValueAsString(aircraft);

@@ -4,8 +4,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
+import com.keyin.cli.client.AircraftApiClient;
+import com.keyin.cli.client.AirportApiClient;
 import com.keyin.cli.client.CityApiClient;
 import com.keyin.cli.client.PassengerApiClient;
+import com.keyin.cli.model.Aircraft;
 import com.keyin.cli.model.Airport;
 import com.keyin.cli.model.City;
 
@@ -48,6 +52,28 @@ public class AirportCliApp {
                     }
                 }
 
+                case "3" -> {
+                    System.out.println("Enter Aircraft ID: ");
+                    long aircraftId = Long.parseLong(scanner.nextLine());
+
+                    try {
+                        AircraftApiClient aircraftClient = new AircraftApiClient();
+                        List<Airport> airports = aircraftClient.getAirportsUsedByAircraft(aircraftId);
+
+                        if (airports.isEmpty()) {
+                            System.out.println("  No airports found for aircraft ID: " + aircraftId);
+                        } else {
+                            System.out.println("Airports associated with Aircraft ID " + aircraftId + ":");
+                            for (Airport airport : airports) {
+                                System.out.println("  → " + airport.getAirportName() + " (" + airport.getAreaCode() + ")");
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.err.println("An error occurred: " + e.getMessage());
+                    }
+                }
+
+
                 case "4" -> {
                     System.out.print("Enter Passenger ID: ");
                     long passengerId = Long.parseLong(scanner.nextLine());
@@ -70,7 +96,7 @@ public class AirportCliApp {
                 }
 
                 case "2" -> System.exit(0);
-                case "3" -> System.exit(0);
+
                 case "5" -> System.exit(0);
                 default -> System.out.println("Invalid choice");
             }
