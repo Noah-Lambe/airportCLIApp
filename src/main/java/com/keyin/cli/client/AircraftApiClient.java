@@ -58,7 +58,7 @@ public class AircraftApiClient {
 
     public List<Airport> getAirportsUsedByAircraft(Long aircraftId) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(API_URL + "/" + aircraftId + "/airports"))
+                .uri(URI.create(API_URL + "/" + aircraftId + "/airports")) // Help me
                 .GET()
                 .build();
 
