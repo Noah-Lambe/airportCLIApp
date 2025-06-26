@@ -34,7 +34,8 @@ public class AircraftApiClient {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() == 200) {
-            return mapper.readValue(response.body(), new TypeReference<List<Aircraft>>() {});
+            return mapper.readValue(response.body(), new TypeReference<List<Aircraft>>() {
+            });
         } else {
             throw new Exception("Failed to fetch aircraft. HTTP Status: " + response.statusCode());
         }
@@ -113,6 +114,22 @@ public class AircraftApiClient {
 
         if (response.statusCode() != 200 && response.statusCode() != 204) {
             throw new Exception("Failed to delete aircraft. HTTP Status: " + response.statusCode());
+        }
+    }
+
+    public List<Aircraft> getAircraftByPassengerId(long passengerId) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder(
+                        URI.create(API_URL + "/passenger/" + passengerId))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return mapper.readValue(response.body(), new TypeReference<List<Aircraft>>() {
+            });
+        } else {
+            throw new Exception("Failed to fetch aircraft for passenger. HTTP Status: " + response.statusCode());
         }
     }
 }
